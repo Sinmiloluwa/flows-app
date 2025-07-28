@@ -1,6 +1,8 @@
 import 'package:flows/data/texts.dart';
 import 'package:flows/views/widgets/genre_chip_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flows/views/pages/song_view_page.dart';
+import 'package:flows/views/widgets/custom_bottom_navbar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -104,56 +106,64 @@ class _HomePageState extends State<HomePage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: SizedBox(
-                                height: 200, // reduced image height
-                                width: double.infinity,
-                                child: Image.network(
-                                  'https://images.unsplash.com/photo-1603568705176-f8b40039b087?q=80&w=1015&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) => Container(
-                                    color: Colors.grey,
-                                    child: const Icon(Icons.broken_image, size: 50),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const SongViewPage()),
+                                );
+                              },
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: SizedBox(
+                                  height: 200,
+                                  width: double.infinity,
+                                  child: Image.network(
+                                    'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?q=80&w=1619&auto=format&fit=crop',
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) => Container(
+                                      color: Colors.grey,
+                                      child: const Icon(Icons.broken_image, size: 50),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                             const SizedBox(height: 8),
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 2, // thickness of the vertical line
-                                    height: 20, // height of the vertical line
-                                    color: Colors.green,
-                                    margin: const EdgeInsets.only(right: 4), // spacing between line and text
-                                  ),
-                                  Text(
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 2,
+                                  height: 20,
+                                  color: Colors.green,
+                                  margin: const EdgeInsets.only(right: 4),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const SongViewPage()),
+                                    );
+                                  },
+                                  child: Text(
                                     'Oblivious $index',
-                                    style: kTextStyle.titleText.copyWith(
-                                      fontSize: 15,
-                                    ),
+                                    style: kTextStyle.titleText.copyWith(fontSize: 15),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: Text(
-                                'Jon Bellion $index',
-                                style: kTextStyle.descriptionText.copyWith(
-                                  fontSize: 12,
-                                  color: Colors.grey,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                              ],
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              'Jon Bellion $index',
+                              style: kTextStyle.descriptionText.copyWith(
+                                fontSize: 12,
+                                color: Colors.grey,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
