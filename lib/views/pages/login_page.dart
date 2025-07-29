@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flows/data/texts.dart';
+import 'package:flows/views/pages/signup_page.dart';
+import 'package:flows/views/widgets/build_input_text.dart';
+import 'package:flows/views/widgets/button.dart';
+import 'package:flows/views/pages/home_page.dart';
+import 'package:flows/views/widget_tree.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -32,41 +37,52 @@ class _LoginPageState extends State<LoginPage> {
           ),
           SizedBox(height: 20,),
           Text('Email', style: kTextStyle.titleText),
-          _buildInputText(
+          BuildInputText(
             hintText: 'hello@company.com',
             isObscure: false,
             isPasswordField: false,
           ),
           const SizedBox(height: 20),
           Text('Password', style: kTextStyle.titleText),
-          _buildInputText(
+          BuildInputText(
             hintText: 'password',
             isObscure: _isObscure,
             isPasswordField: true,
           ),
           const SizedBox(height: 20.0,),
-          Text('Forgot Password?', style: TextStyle(
-              color: Colors.green,
-              fontSize: 16.0
-          ),),
-          const SizedBox(height: 20.0,),
-          SizedBox(
-            width: double.infinity,
-            child: TextButton(
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Forgot Password?', style: TextStyle(
+                  color: Colors.green,
+                  fontSize: 16.0
+              ),),
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SignupPage()),
+                  );
+                },
+                child: Text(
+                  'Sign up',
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontSize: 16.0,
                   ),
                 ),
-              ),
-              onPressed: () {},
-              child: Text('Log in', style: TextStyle(
-                  color: Colors.black,
-                fontWeight: FontWeight.bold
-              )),
-            ),
+              )
+            ],
+          ),
+          const SizedBox(height: 20.0,),
+          Button(
+            text: 'Log in',
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => WidgetTree()),
+              );
+            },
           ),
           const SizedBox(height: 30.0,),
           Row(
@@ -174,43 +190,43 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildInputText({
-    required String hintText,
-    required bool isObscure,
-    required bool isPasswordField,
-  }) {
-    return TextField(
-      obscureText: isPasswordField ? isObscure : false,
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        suffixIcon: isPasswordField
-            ? IconButton(
-          icon: Icon(
-            isObscure ? Icons.visibility_off : Icons.visibility,
-            color: isObscure ? Colors.grey : Colors.white,
-          ),
-          onPressed: () {
-            setState(() {
-              _isObscure = !_isObscure;
-            });
-          },
-        )
-            : null,
-        hintText: hintText,
-        hintStyle: const TextStyle(color: Colors.white54),
-        prefixIcon: Icon(
-          isPasswordField ? Icons.lock : Icons.mail,
-          color: Colors.white,
-        ),
-        border: const OutlineInputBorder(),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.green, width: 2.0),
-        ),
-      ),
-      maxLength: 50,
-      onChanged: (text) {
-        print('Entered value: $text');
-      },
-    );
-  }
+  // Widget _buildInputText({
+  //   required String hintText,
+  //   required bool isObscure,
+  //   required bool isPasswordField,
+  // }) {
+  //   return TextField(
+  //     obscureText: isPasswordField ? isObscure : false,
+  //     style: const TextStyle(color: Colors.white),
+  //     decoration: InputDecoration(
+  //       suffixIcon: isPasswordField
+  //           ? IconButton(
+  //         icon: Icon(
+  //           isObscure ? Icons.visibility_off : Icons.visibility,
+  //           color: isObscure ? Colors.grey : Colors.white,
+  //         ),
+  //         onPressed: () {
+  //           setState(() {
+  //             _isObscure = !_isObscure;
+  //           });
+  //         },
+  //       )
+  //           : null,
+  //       hintText: hintText,
+  //       hintStyle: const TextStyle(color: Colors.white54),
+  //       prefixIcon: Icon(
+  //         isPasswordField ? Icons.lock : Icons.mail,
+  //         color: Colors.white,
+  //       ),
+  //       border: const OutlineInputBorder(),
+  //       focusedBorder: OutlineInputBorder(
+  //         borderSide: BorderSide(color: Colors.green, width: 2.0),
+  //       ),
+  //     ),
+  //     maxLength: 50,
+  //     onChanged: (text) {
+  //       print('Entered value: $text');
+  //     },
+  //   );
+  // }
 }
