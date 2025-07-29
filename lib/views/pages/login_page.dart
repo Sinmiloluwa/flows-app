@@ -5,6 +5,9 @@ import 'package:flows/views/widgets/build_input_text.dart';
 import 'package:flows/views/widgets/button.dart';
 import 'package:flows/views/pages/home_page.dart';
 import 'package:flows/views/widget_tree.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flows/views/widgets/loading_dots.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,6 +18,11 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _isObscure = true;
+  bool _isLoading = false;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,54 +44,58 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
           SizedBox(height: 20,),
-          Text('Email', style: kTextStyle.titleText),
-          BuildInputText(
-            hintText: 'hello@company.com',
-            isObscure: false,
-            isPasswordField: false,
-          ),
-          const SizedBox(height: 20),
-          Text('Password', style: kTextStyle.titleText),
-          BuildInputText(
-            hintText: 'password',
-            isObscure: _isObscure,
-            isPasswordField: true,
-          ),
-          const SizedBox(height: 20.0,),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Form(
+              key: _formKey,
+              child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Forgot Password?', style: TextStyle(
-                  color: Colors.green,
-                  fontSize: 16.0
-              ),),
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SignupPage()),
-                  );
-                },
-                child: Text(
-                  'Sign up',
-                  style: TextStyle(
-                    color: Colors.green,
-                    fontSize: 16.0,
-                  ),
-                ),
-              )
+              Text('Email', style: kTextStyle.titleText),
+              BuildInputText(
+                controller: _emailController,
+                hintText: 'hello@company.com',
+                isObscure: false,
+                isPasswordField: false,
+              ),
+              const SizedBox(height: 20),
+              Text('Password', style: kTextStyle.titleText),
+              BuildInputText(
+                controller: _passwordController,
+                hintText: 'password',
+                isObscure: _isObscure,
+                isPasswordField: true,
+              ),
+              const SizedBox(height: 20.0,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Forgot Password?', style: TextStyle(
+                      color: Colors.green,
+                      fontSize: 16.0
+                  ),),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignupPage()),
+                      );
+                    },
+                    child: Text(
+                      'Sign up',
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              const SizedBox(height: 20.0,),
+              Button(
+                text: 'Log in',
+                onPressed: login,
+              ),
             ],
-          ),
-          const SizedBox(height: 20.0,),
-          Button(
-            text: 'Log in',
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => WidgetTree()),
-              );
-            },
-          ),
+          )),
           const SizedBox(height: 30.0,),
           Row(
             children: <Widget>[
@@ -190,43 +202,72 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // Widget _buildInputText({
-  //   required String hintText,
-  //   required bool isObscure,
-  //   required bool isPasswordField,
-  // }) {
-  //   return TextField(
-  //     obscureText: isPasswordField ? isObscure : false,
-  //     style: const TextStyle(color: Colors.white),
-  //     decoration: InputDecoration(
-  //       suffixIcon: isPasswordField
-  //           ? IconButton(
-  //         icon: Icon(
-  //           isObscure ? Icons.visibility_off : Icons.visibility,
-  //           color: isObscure ? Colors.grey : Colors.white,
-  //         ),
-  //         onPressed: () {
-  //           setState(() {
-  //             _isObscure = !_isObscure;
-  //           });
-  //         },
-  //       )
-  //           : null,
-  //       hintText: hintText,
-  //       hintStyle: const TextStyle(color: Colors.white54),
-  //       prefixIcon: Icon(
-  //         isPasswordField ? Icons.lock : Icons.mail,
-  //         color: Colors.white,
-  //       ),
-  //       border: const OutlineInputBorder(),
-  //       focusedBorder: OutlineInputBorder(
-  //         borderSide: BorderSide(color: Colors.green, width: 2.0),
-  //       ),
-  //     ),
-  //     maxLength: 50,
-  //     onChanged: (text) {
-  //       print('Entered value: $text');
-  //     },
-  //   );
-  // }
+  void login() async {
+    if (!_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Please fill in all fields', style: TextStyle(color: Colors.white),),
+        ),
+      );
+      return;
+    }
+    print('Api called');
+    final url = Uri.parse('https://flows-backend.onrender.com/api/auth/login');
+    print(_emailController.text);
+    FocusScope.of(context).unfocus(); // Dismiss keyboard
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => Center(child: CircularProgressIndicator(backgroundColor: Colors.green,)),
+    );
+    try {
+      final response = await http.post(
+        url,
+        body: {
+          'email': _emailController.text,
+          'password': _passwordController.text,
+        },
+      );
+      Navigator.of(context, rootNavigator: true).pop();
+
+      setState(() {
+        _isLoading = false;
+      });
+      if (response.statusCode == 201) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => WidgetTree()),
+        );
+      } else {
+        final responseBody = json.decode(response.body);
+        final errorMsg = responseBody['message'] ?? 'Login failed';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              backgroundColor: Colors.red,
+              content: Text(errorMsg, style: TextStyle(color: Colors.white),),
+          ),
+        );
+      }
+    } catch (error) {
+      Navigator.of(context, rootNavigator: true).pop();
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Network error', style: TextStyle(color: Colors.white),),
+        ),
+      );
+    }
+  }
 }
