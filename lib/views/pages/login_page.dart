@@ -3,11 +3,10 @@ import 'package:flows/data/texts.dart';
 import 'package:flows/views/pages/signup_page.dart';
 import 'package:flows/views/widgets/build_input_text.dart';
 import 'package:flows/views/widgets/button.dart';
-import 'package:flows/views/pages/home_page.dart';
 import 'package:flows/views/widget_tree.dart';
-import 'package:http/http.dart' as http;
+import 'package:flows/services/session_service.dart';
+import 'package:flows/services/api_service.dart';
 import 'dart:convert';
-import 'package:flows/views/widgets/loading_dots.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -125,8 +124,8 @@ class _LoginPageState extends State<LoginPage> {
             width: double.infinity,
             child: TextButton(
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                backgroundColor: WidgetStateProperty.all<Color>(Colors.black),
+                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
                     side: BorderSide(color: Colors.grey[700]!, width: 0.3),
@@ -163,8 +162,8 @@ class _LoginPageState extends State<LoginPage> {
             width: double.infinity,
             child: TextButton(
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                backgroundColor: WidgetStateProperty.all<Color>(Colors.black),
+                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
                     side: BorderSide(color: Colors.grey[700]!, width: 0.3), // white border
@@ -212,9 +211,8 @@ class _LoginPageState extends State<LoginPage> {
       );
       return;
     }
+
     print('Api called');
-    final url = Uri.parse('https://flows-backend.onrender.com/api/auth/login');
-    print(_emailController.text);
     FocusScope.of(context).unfocus(); // Dismiss keyboard
 
     setState(() {
@@ -227,24 +225,55 @@ class _LoginPageState extends State<LoginPage> {
       barrierDismissible: false,
       builder: (_) => Center(child: CircularProgressIndicator(backgroundColor: Colors.green,)),
     );
+
     try {
-      final response = await http.post(
-        url,
-        body: {
-          'email': _emailController.text,
-          'password': _passwordController.text,
-        },
-      );
+      final response = await ApiService.login(_emailController.text, _passwordController.text);
+      
       Navigator.of(context, rootNavigator: true).pop();
 
       setState(() {
         _isLoading = false;
       });
-      if (response.statusCode == 201) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => WidgetTree()),
-        );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        // Parse the response to extract token and user info
+        final responseBody = json.decode(response.body);
+        
+        // Extract token and user information from response
+        final String? token = responseBody['access_token'];
+        final String? userId = responseBody['user']?['id']?.toString();
+        final String? userEmail = responseBody['user']?['email'];
+        
+        if (token != null) {
+          // Save session data
+          bool sessionSaved = await SessionService.saveSession(
+            token: token,
+            userId: userId,
+            email: userEmail ?? _emailController.text,
+          );
+          
+          if (sessionSaved) {
+            print('Session saved successfully');
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WidgetTree()),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: Colors.red,
+                content: Text('Failed to save session', style: TextStyle(color: Colors.white)),
+              ),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.red,
+              content: Text('Invalid response from server', style: TextStyle(color: Colors.white)),
+            ),
+          );
+        }
       } else {
         final responseBody = json.decode(response.body);
         final errorMsg = responseBody['message'] ?? 'Login failed';

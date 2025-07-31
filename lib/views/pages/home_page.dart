@@ -1,8 +1,8 @@
 import 'package:flows/data/texts.dart';
 import 'package:flows/views/widgets/genre_chip_widget.dart';
+import 'package:flows/services/session_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flows/views/pages/song_view_page.dart';
-import 'package:flows/views/widgets/custom_bottom_navbar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,6 +12,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String? userEmail;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final sessionData = await SessionService.getSessionData();
+    setState(() {
+      userEmail = sessionData['email'];
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +42,10 @@ class _HomePageState extends State<HomePage> {
                     color: Colors.grey, // example override
                   ), // style for "Hello,"
                 ),
-                TextSpan(text: 'John Smith', style: kTextStyle.nameText),
+                TextSpan(
+                  text: userEmail?.split('@')[0] ?? 'User', 
+                  style: kTextStyle.nameText
+                ),
               ],
             ),
           ),
