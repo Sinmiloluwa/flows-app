@@ -6,7 +6,8 @@ class ApiService {
   static const String baseUrl = 'https://flows-backend.onrender.com/api';
 
   // Get headers with authentication token
-  static Future<Map<String, String>> _getHeaders({bool includeAuth = true}) async {
+  static Future<Map<String, String>> _getHeaders(
+      {bool includeAuth = true}) async {
     Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
@@ -25,15 +26,16 @@ class ApiService {
   static Future<http.Response> get(String endpoint) async {
     final headers = await _getHeaders();
     final uri = Uri.parse('$baseUrl$endpoint');
-    
+
     return await http.get(uri, headers: headers);
   }
 
   // Make authenticated POST request
-  static Future<http.Response> post(String endpoint, {Map<String, dynamic>? body}) async {
+  static Future<http.Response> post(String endpoint,
+      {Map<String, dynamic>? body}) async {
     final headers = await _getHeaders();
     final uri = Uri.parse('$baseUrl$endpoint');
-    
+
     return await http.post(
       uri,
       headers: headers,
@@ -42,10 +44,11 @@ class ApiService {
   }
 
   // Make authenticated PUT request
-  static Future<http.Response> put(String endpoint, {Map<String, dynamic>? body}) async {
+  static Future<http.Response> put(String endpoint,
+      {Map<String, dynamic>? body}) async {
     final headers = await _getHeaders();
     final uri = Uri.parse('$baseUrl$endpoint');
-    
+
     return await http.put(
       uri,
       headers: headers,
@@ -57,7 +60,7 @@ class ApiService {
   static Future<http.Response> delete(String endpoint) async {
     final headers = await _getHeaders();
     final uri = Uri.parse('$baseUrl$endpoint');
-    
+
     return await http.delete(uri, headers: headers);
   }
 
@@ -65,7 +68,7 @@ class ApiService {
   static Future<http.Response> login(String email, String password) async {
     final headers = await _getHeaders(includeAuth: false);
     final uri = Uri.parse('$baseUrl/auth/login');
-    
+
     return await http.post(
       uri,
       headers: headers,
@@ -77,10 +80,11 @@ class ApiService {
   }
 
   // Signup request (doesn't need authentication)
-  static Future<http.Response> signup(String email, String password, {String? name}) async {
+  static Future<http.Response> signup(String email, String password,
+      {String? name}) async {
     final headers = await _getHeaders(includeAuth: false);
     final uri = Uri.parse('$baseUrl/auth/signup');
-    
+
     Map<String, dynamic> requestBody = {
       'email': email,
       'password': password,
@@ -89,7 +93,7 @@ class ApiService {
     if (name != null) {
       requestBody['name'] = name;
     }
-    
+
     return await http.post(
       uri,
       headers: headers,
@@ -102,7 +106,7 @@ class ApiService {
     try {
       // You can make a logout API call here if your backend requires it
       // await post('/auth/logout');
-      
+
       // Clear local session
       return await SessionService.clearSession();
     } catch (e) {
@@ -121,5 +125,55 @@ class ApiService {
       print('Token validation error: $e');
       return false;
     }
+  }
+
+  // Fetch categories (authenticated request)
+  static Future<http.Response> getCategories() async {
+    return await get('/categories');
+  }
+
+  // Fetch songs by category (authenticated request)
+  static Future<http.Response> getSongsByCategory(String categoryId) async {
+    return await get('/categories/$categoryId/songs');
+  }
+
+  // Fetch user's playlists (authenticated request)
+  static Future<http.Response> getUserPlaylists() async {
+    return await get('/user/playlists');
+  }
+
+  // Create a new playlist (authenticated request)
+  static Future<http.Response> createPlaylist(String name,
+      {String? description}) async {
+    Map<String, dynamic> requestBody = {
+      'name': name,
+    };
+
+    if (description != null) {
+      requestBody['description'] = description;
+    }
+
+    return await post('/playlists', body: requestBody);
+  }
+
+  // Fetch popular songs (authenticated request)
+  static Future<http.Response> getPopularSongs({int limit = 10}) async {
+    return await get('/songs/popular?limit=$limit');
+  }
+
+  // Search for songs (authenticated request)
+  static Future<http.Response> searchSongs(String query) async {
+    return await get('/songs/search?q=${Uri.encodeComponent(query)}');
+  }
+
+  // Get user profile (authenticated request)
+  static Future<http.Response> getUserProfile() async {
+    return await get('/user/profile');
+  }
+
+  // Update user profile (authenticated request)
+  static Future<http.Response> updateUserProfile(
+      Map<String, dynamic> profileData) async {
+    return await put('/user/profile', body: profileData);
   }
 }
