@@ -16,6 +16,7 @@ class _HomePageState extends State<HomePage> {
   String? userEmail;
   List<dynamic> categories = [];
   bool isLoadingCategories = false;
+  String? selectedCategoryId = 'all'; // Default selected category
 
   @override
   void initState() {
@@ -75,6 +76,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onCategorySelected(dynamic category) {
+    setState(() {
+      selectedCategoryId = category['id'];
+    });
+
     // You can add logic here to:
     // 1. Filter songs by category
     // 2. Navigate to a category-specific page
@@ -90,7 +95,7 @@ class _HomePageState extends State<HomePage> {
     );
 
     // Example: Fetch songs for this category
-    if (category['id'] != null) {
+    if (category['id'] != null && category['id'] != 'all') {
       // _fetchSongsByCategory(category['id']);
     }
   }
@@ -184,12 +189,69 @@ class _HomePageState extends State<HomePage> {
                             style: TextStyle(color: Colors.grey),
                           )
                         : SizedBox(
-                            height: 50, // Fixed height for horizontal scroll
+                            height: 35, // Fixed height for horizontal scroll
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
-                              itemCount: categories.length,
+                              itemCount: categories.length +
+                                  1, // +1 for "All" category
                               itemBuilder: (context, index) {
-                                final category = categories[index];
+                                // Handle "All" category as first item
+                                if (index == 0) {
+                                  final isSelected =
+                                      selectedCategoryId == 'all';
+                                  return Container(
+                                    margin: EdgeInsets.only(right: 12.0),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        _onCategorySelected({
+                                          'name': 'All',
+                                          'id': 'all',
+                                          'original': 'all',
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 16.0,
+                                          vertical: 4.0,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: isSelected
+                                              ? Colors.lightGreenAccent[400]
+                                              : const Color.fromARGB(
+                                                  255, 58, 59, 58),
+                                          borderRadius:
+                                              BorderRadius.circular(25.0),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: isSelected
+                                                  ? Colors.lightGreenAccent
+                                                      .withOpacity(0.3)
+                                                  : Colors.grey
+                                                      .withOpacity(0.2),
+                                              blurRadius: 4,
+                                              offset: Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            'All',
+                                            style: TextStyle(
+                                              color: isSelected
+                                                  ? Colors.black
+                                                  : Colors.white,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                // Handle regular categories (adjust index by -1)
+                                final category = categories[index - 1];
 
                                 // Safely get category name with multiple fallbacks
                                 String categoryName = 'Unknown Category';
@@ -217,13 +279,11 @@ class _HomePageState extends State<HomePage> {
                                   categoryName = 'Invalid Category';
                                 }
 
+                                final isSelected =
+                                    selectedCategoryId == categoryId;
+
                                 return Container(
-                                  margin: EdgeInsets.only(
-                                    right: 12.0,
-                                    left: index == 0
-                                        ? 0
-                                        : 0, // No extra left margin for first item
-                                  ),
+                                  margin: EdgeInsets.only(right: 12.0),
                                   child: GestureDetector(
                                     onTap: () {
                                       // Handle category selection
@@ -239,13 +299,18 @@ class _HomePageState extends State<HomePage> {
                                         vertical: 4.0,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.lightGreenAccent[400],
+                                        color: isSelected
+                                            ? Colors.lightGreenAccent[400]
+                                            : const Color.fromARGB(
+                                                255, 58, 59, 58),
                                         borderRadius:
                                             BorderRadius.circular(25.0),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.lightGreenAccent
-                                                .withOpacity(0.3),
+                                            color: isSelected
+                                                ? Colors.lightGreenAccent
+                                                    .withOpacity(0.3)
+                                                : Colors.grey.withOpacity(0.2),
                                             blurRadius: 4,
                                             offset: Offset(0, 2),
                                           ),
@@ -255,8 +320,9 @@ class _HomePageState extends State<HomePage> {
                                         child: Text(
                                           categoryName,
                                           style: TextStyle(
-                                            color: Colors
-                                                .black, // Black text on light green background
+                                            color: isSelected
+                                                ? Colors.black
+                                                : Colors.white,
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
                                           ),
