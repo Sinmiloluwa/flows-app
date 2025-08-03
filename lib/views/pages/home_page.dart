@@ -15,7 +15,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String? userEmail;
   List<dynamic> categories = [];
+  List<dynamic> popularSongs = [];
   bool isLoadingCategories = false;
+  bool isLoadingPopularSongs = false;
   String? selectedCategoryId = 'all'; // Default selected category
 
   @override
@@ -23,6 +25,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _loadUserData();
     getCategories();
+    getPopularSongs();
   }
 
   Future<void> _loadUserData() async {
@@ -73,6 +76,48 @@ class _HomePageState extends State<HomePage> {
         isLoadingCategories = false;
       });
     }
+  }
+
+  Future<void> getPopularSongs() async {
+    print('Getting popular songs...');
+    setState(() {
+      isLoadingPopularSongs = true;
+    });
+
+    try {
+      final response = await ApiService.get('/popularity/songs'); // Example endpoint
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        List<dynamic> popularSongsList = [];
+
+        if (data is List) {
+          popularSongsList = data;
+        } else if (data is Map<String, dynamic>) {
+          if (data.containsKey('categories')) {
+            popularSongsList = data['categories'] ?? [];
+          } else if (data.containsKey('data')) {
+            popularSongsList = data['data'] ?? [];
+          } else {
+            print(
+                'Response structure not recognized, available keys: ${data.keys}');
+            popularSongsList = [];
+          }
+        }
+
+        setState(() {
+          popularSongs = popularSongsList;
+          isLoadingPopularSongs = false;
+        });
+      }
+    } catch (error) {
+      setState(() {
+        isLoadingPopularSongs = false;
+      });
+      print('Error fetching popular songs: $error');
+      return;
+      
+    }
+    print('Fetching popular songs...');
   }
 
   void _onCategorySelected(dynamic category) {
@@ -341,6 +386,7 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Popular Songs', style: kTextStyle.titleText),
+                    popularSongs.length > 5 ?
                     GestureDetector(
                       onTap: () {
                         // Navigate to popular songs page or show all popular songs
@@ -353,17 +399,20 @@ class _HomePageState extends State<HomePage> {
                         style: kTextStyle.descriptionText
                             .copyWith(color: Colors.grey),
                       ),
-                    ),
+                    ) : Container()
                   ],
                 ),
                 SizedBox(
                   height: 20,
                 ),
+                isLoadingPopularSongs ? Center(
+                  child: CircularProgressIndicator(),
+                ) : 
                 SizedBox(
                   height: 300,
                   width: double.infinity,
                   child: ListView.builder(
-                    itemCount: 10,
+                    itemCount: popularSongs.length,
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (context, index) {
                       return Container(
@@ -391,7 +440,8 @@ class _HomePageState extends State<HomePage> {
                                   height: 200,
                                   width: double.infinity,
                                   child: Image.network(
-                                    'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?q=80&w=1619&auto=format&fit=crop',
+                                    popularSongs[index]['coverImage'] ??
+                                        'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?q=80&w=1619&auto=format&fit=crop',
                                     fit: BoxFit.cover,
                                     errorBuilder:
                                         (context, error, stackTrace) =>
@@ -424,7 +474,7 @@ class _HomePageState extends State<HomePage> {
                                     );
                                   },
                                   child: Text(
-                                    'Oblivious $index',
+                                    popularSongs[index]['title'] ?? 'Unknown',
                                     style: kTextStyle.titleText
                                         .copyWith(fontSize: 15),
                                     maxLines: 1,
@@ -435,7 +485,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                             const SizedBox(height: 5),
                             Text(
-                              'Jon Bellion $index',
+                              popularSongs[index]['artist'] ?? 'Unknown Artist',
                               style: kTextStyle.descriptionText.copyWith(
                                 fontSize: 12,
                                 color: Colors.grey,
