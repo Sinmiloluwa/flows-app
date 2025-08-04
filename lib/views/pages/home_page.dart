@@ -1,6 +1,7 @@
 import 'package:flows/data/texts.dart';
 import 'package:flows/services/session_service.dart';
 import 'package:flows/services/api_service.dart';
+import 'package:flows/views/widgets/shimmer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flows/views/pages/song_view_page.dart';
 import 'dart:convert';
@@ -85,7 +86,8 @@ class _HomePageState extends State<HomePage> {
     });
 
     try {
-      final response = await ApiService.get('/popularity/songs'); // Example endpoint
+      final response =
+          await ApiService.get('/popularity/songs'); // Example endpoint
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         List<dynamic> popularSongsList = [];
@@ -115,7 +117,6 @@ class _HomePageState extends State<HomePage> {
       });
       print('Error fetching popular songs: $error');
       return;
-      
     }
     print('Fetching popular songs...');
   }
@@ -223,9 +224,21 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const SizedBox(height: 20),
                 isLoadingCategories
-                    ? Center(
-                        child: CircularProgressIndicator(
-                          backgroundColor: Colors.green,
+                    ? SizedBox(
+                        height: 35,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: 5, // Show 5 shimmer placeholders
+                          itemBuilder: (context, index) {
+                            return Container(
+                              margin: EdgeInsets.only(right: 12.0),
+                              child: ShimmerBox(
+                                width: 80 + (index * 20), // Varying widths
+                                height: 35,
+                                borderRadius: 25.0,
+                              ),
+                            );
+                          },
                         ),
                       )
                     : categories.isEmpty
@@ -386,119 +399,178 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Popular Songs', style: kTextStyle.titleText),
-                    popularSongs.length > 5 ?
-                    GestureDetector(
-                      onTap: () {
-                        // Navigate to popular songs page or show all popular songs
-                        print('See all popular songs tapped');
-                        // You can add navigation logic here
-                        // Navigator.push(context, MaterialPageRoute(builder: (context) => PopularSongsPage()));
-                      },
-                      child: Text(
-                        'See all >>',
-                        style: kTextStyle.descriptionText
-                            .copyWith(color: Colors.grey),
-                      ),
-                    ) : Container()
+                    popularSongs.length > 5
+                        ? GestureDetector(
+                            onTap: () {
+                              // Navigate to popular songs page or show all popular songs
+                              print('See all popular songs tapped');
+                              // You can add navigation logic here
+                              // Navigator.push(context, MaterialPageRoute(builder: (context) => PopularSongsPage()));
+                            },
+                            child: Text(
+                              'See all >>',
+                              style: kTextStyle.descriptionText
+                                  .copyWith(color: Colors.grey),
+                            ),
+                          )
+                        : Container()
                   ],
                 ),
                 SizedBox(
                   height: 20,
                 ),
-                isLoadingPopularSongs ? Center(
-                  child: CircularProgressIndicator(),
-                ) : 
-                SizedBox(
-                  height: 300,
-                  width: double.infinity,
-                  child: ListView.builder(
-                    itemCount: popularSongs.length,
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        width: 150,
-                        height: 200,
-                        margin: const EdgeInsets.only(right: 16),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
+                isLoadingPopularSongs
+                    ? SizedBox(
+                        height: 300,
+                        width: double.infinity,
+                        child: ListView.builder(
+                          itemCount: 5, // Show 5 shimmer placeholders
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              width: 150,
+                              margin: const EdgeInsets.only(right: 16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ShimmerCard(
+                                    width: 150,
+                                    height: 200,
+                                    borderRadius: 16,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 2,
+                                        height: 20,
+                                        color: Colors.grey[300],
+                                        margin: const EdgeInsets.only(right: 4),
+                                      ),
+                                      ShimmerText(width: 100, height: 16),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  ShimmerText(width: 80, height: 12),
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const SongViewPage()),
-                                );
-                              },
-                              child: ClipRRect(
+                      )
+                    : SizedBox(
+                        height: 300,
+                        width: double.infinity,
+                        child: ListView.builder(
+                          itemCount: popularSongs.length,
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              width: 150,
+                              height: 200,
+                              margin: const EdgeInsets.only(right: 16),
+                              decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
-                                child: SizedBox(
-                                  height: 200,
-                                  width: double.infinity,
-                                  child: Image.network(
-                                    popularSongs[index]['coverImage'] ??
-                                        'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?q=80&w=1619&auto=format&fit=crop',
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            Container(
-                                      color: Colors.grey,
-                                      child: const Icon(Icons.broken_image,
-                                          size: 50),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      // Get the song ID from the popular songs data
+                                      final songId = popularSongs[index]
+                                                  ['songId']
+                                              ?.toString() ??
+                                          popularSongs[index]['_id']
+                                              ?.toString() ??
+                                          index
+                                              .toString(); // fallback to index if no ID
+
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                SongViewPage(songId: songId)),
+                                      );
+                                    },
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: SizedBox(
+                                        height: 200,
+                                        width: double.infinity,
+                                        child: Image.network(
+                                          popularSongs[index]['coverImage'] ??
+                                              'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?q=80&w=1619&auto=format&fit=crop',
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  Container(
+                                            color: Colors.grey,
+                                            child: const Icon(
+                                                Icons.broken_image,
+                                                size: 50),
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 2,
-                                  height: 20,
-                                  color: Colors.green,
-                                  margin: const EdgeInsets.only(right: 4),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const SongViewPage()),
-                                    );
-                                  },
-                                  child: Text(
-                                    popularSongs[index]['title'] ?? 'Unknown',
-                                    style: kTextStyle.titleText
-                                        .copyWith(fontSize: 15),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        width: 2,
+                                        height: 20,
+                                        color: Colors.green,
+                                        margin: const EdgeInsets.only(right: 4),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          // Get the song ID from the popular songs data
+                                          final songId = popularSongs[index]
+                                                      ['id']
+                                                  ?.toString() ??
+                                              popularSongs[index]['_id']
+                                                  ?.toString() ??
+                                              index
+                                                  .toString(); // fallback to index if no ID
+
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    SongViewPage(
+                                                        songId: songId)),
+                                          );
+                                        },
+                                        child: Text(
+                                          popularSongs[index]['title'] ??
+                                              'Unknown',
+                                          style: kTextStyle.titleText
+                                              .copyWith(fontSize: 15),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    popularSongs[index]['artist'] ??
+                                        'Unknown Artist',
+                                    style: kTextStyle.descriptionText.copyWith(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              popularSongs[index]['artist'] ?? 'Unknown Artist',
-                              style: kTextStyle.descriptionText.copyWith(
-                                fontSize: 12,
-                                color: Colors.grey,
+                                ],
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
-                ),
+                      ),
                 // SizedBox(height: 30),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
