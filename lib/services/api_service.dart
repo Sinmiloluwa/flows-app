@@ -23,11 +23,18 @@ class ApiService {
   }
 
   // Make authenticated GET request
-  static Future<http.Response> get(String endpoint) async {
-    final headers = await _getHeaders();
+  static Future<http.Response> get(String endpoint,
+      {Map<String, String>? headers}) async {
+    final requestHeaders = await _getHeaders();
+
+    // Merge custom headers if provided
+    if (headers != null) {
+      requestHeaders.addAll(headers);
+    }
+
     final uri = Uri.parse('$baseUrl$endpoint');
 
-    return await http.get(uri, headers: headers);
+    return await http.get(uri, headers: requestHeaders);
   }
 
   // Make authenticated POST request
@@ -159,6 +166,12 @@ class ApiService {
   // Fetch popular songs (authenticated request)
   static Future<http.Response> getPopularSongs({int limit = 10}) async {
     return await get('/songs/popular?limit=$limit');
+  }
+
+  static Future<http.Response> getSongById(String songId) async {
+    print('API: Fetching song with ID: $songId');
+    print('API: Endpoint: /songs/$songId');
+    return await get('/songs/$songId');
   }
 
   // Search for songs (authenticated request)
