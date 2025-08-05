@@ -145,8 +145,9 @@ class ApiService {
   }
 
   // Fetch user's playlists (authenticated request)
-  static Future<http.Response> getUserPlaylists() async {
-    return await get('/user/playlists');
+  static Future<http.Response> getPlaylists() async {
+    final headers = await _getHeaders();
+    return await get('/playlists', headers: headers);
   }
 
   // Create a new playlist (authenticated request)
