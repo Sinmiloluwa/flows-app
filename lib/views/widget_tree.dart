@@ -1,3 +1,4 @@
+import 'package:flows/views/pages/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flows/views/pages/home_page.dart'; // Your HomePage
 import 'package:flows/views/pages/profile_page.dart'; // Your ProfilePage
@@ -7,7 +8,7 @@ import 'package:flows/views/widgets/custom_bottom_navbar.dart'; // Your CustomBo
 // Each page should be a Widget (e.g., HomePage, SearchPage, etc.)
 final List<Widget> pages = [
   const HomePage(), // Your existing HomePage
-  const Center(child: Text("Search Page", style: TextStyle(color: Colors.white))), // Placeholder
+  const SearchPage(), // Placeholder
   const Center(child: Text("Add/Create Page", style: TextStyle(color: Colors.white))), // Placeholder
   const Center(child: Text("Books Page", style: TextStyle(color: Colors.white))), // Placeholder
   const ProfilePage(), // Your ProfilePage with logout functionality
