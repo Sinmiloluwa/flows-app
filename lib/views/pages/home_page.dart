@@ -4,6 +4,7 @@ import 'package:flows/services/api_service.dart';
 import 'package:flows/views/widgets/shimmer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flows/views/pages/song_view_page.dart';
+import 'package:flows/views/pages/playlist_view_page.dart';
 import 'dart:convert';
 
 class HomePage extends StatefulWidget {
@@ -17,8 +18,10 @@ class _HomePageState extends State<HomePage> {
   String? userEmail;
   List<dynamic> categories = [];
   List<dynamic> popularSongs = [];
+  List<dynamic> playlists = [];
   bool isLoadingCategories = false;
   bool isLoadingPopularSongs = false;
+  bool isLoadingPlaylists = false;
   String? selectedCategoryId = 'all'; // Default selected category
 
   @override
@@ -27,6 +30,7 @@ class _HomePageState extends State<HomePage> {
     _loadUserData();
     getCategories();
     getPopularSongs();
+    loadPlaylists();
   }
 
   Future<void> _loadUserData() async {
@@ -119,6 +123,52 @@ class _HomePageState extends State<HomePage> {
       return;
     }
     print('Fetching popular songs...');
+  }
+
+  Future<void> loadPlaylists() async {
+    setState(() {
+      isLoadingPlaylists = true;
+    });
+
+    try {
+      final response = await ApiService.getPlaylists();
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        List<dynamic> playlistsList = [];
+
+        if (data is List) {
+          playlistsList = data;
+        } else if (data is Map<String, dynamic>) {
+          if (data.containsKey('playlists')) {
+            playlistsList = data['playlists'] ?? [];
+          } else if (data.containsKey('data')) {
+            playlistsList = data['data'] ?? [];
+          } else {
+            print(
+                'Response structure not recognized, available keys: ${data.keys}');
+            playlistsList = [];
+          }
+        }
+
+        setState(() {
+          playlists = playlistsList;
+          isLoadingPlaylists = false;
+        });
+        print('Playlists loaded: $playlists');
+      } else {
+        setState(() {
+          isLoadingPlaylists = false;
+        });
+        print('Failed to load playlists: ${response.statusCode}');
+      }
+    } catch (error) {
+      setState(() {
+        isLoadingPlaylists = false;
+      });
+      print('Error loading playlists: $error');
+    }
   }
 
   void _onCategorySelected(dynamic category) {
@@ -681,84 +731,186 @@ class _HomePageState extends State<HomePage> {
                 SizedBox(
                   height: 20,
                 ),
-                SizedBox(
-                  height: 300,
-                  width: double.infinity,
-                  child: ListView.builder(
-                    itemCount: 10,
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        width: 150,
-                        height: 200,
-                        margin: const EdgeInsets.only(right: 16),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: SizedBox(
-                                height: 200, // reduced image height
-                                width: double.infinity,
-                                child: Image.network(
-                                  'https://images.unsplash.com/photo-1603568705176-f8b40039b087?q=80&w=1015&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Container(
-                                    color: Colors.grey,
-                                    child: const Icon(Icons.broken_image,
-                                        size: 50),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
+                isLoadingPlaylists
+                    ? SizedBox(
+                        height: 300,
+                        width: double.infinity,
+                        child: ListView.builder(
+                          itemCount: 5, // Show 5 shimmer placeholders
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              width: 150,
+                              margin: const EdgeInsets.only(right: 16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    width: 2, // thickness of the vertical line
-                                    height: 20, // height of the vertical line
-                                    color: Colors.green,
-                                    margin: const EdgeInsets.only(
-                                        right:
-                                            4), // spacing between line and text
+                                  ShimmerCard(
+                                    width: 150,
+                                    height: 200,
+                                    borderRadius: 16,
                                   ),
-                                  Text(
-                                    'Oblivious $index',
-                                    style: kTextStyle.titleText.copyWith(
-                                      fontSize: 15,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 2,
+                                        height: 20,
+                                        color: Colors.grey[300],
+                                        margin: const EdgeInsets.only(right: 4),
+                                      ),
+                                      ShimmerText(width: 100, height: 16),
+                                    ],
                                   ),
+                                  const SizedBox(height: 5),
+                                  ShimmerText(width: 80, height: 12),
                                 ],
                               ),
-                            ),
-                            SizedBox(height: 5),
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: Text(
-                                'Jon Bellion $index',
-                                style: kTextStyle.descriptionText.copyWith(
-                                  fontSize: 12,
-                                  color: Colors.grey,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
-                ),
+                      )
+                    : playlists.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No playlists available',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          )
+                        : SizedBox(
+                            height: 300,
+                            width: double.infinity,
+                            child: ListView.builder(
+                              itemCount: playlists.length,
+                              scrollDirection: Axis.horizontal,
+                              itemBuilder: (context, index) {
+                                final playlist = playlists[index];
+
+                                // Safely get playlist data
+                                String playlistName = 'Unknown Playlist';
+                                String? playlistImage;
+                                String? playlistId;
+
+                                try {
+                                  if (playlist is Map<String, dynamic>) {
+                                    playlistName =
+                                        playlist['name']?.toString() ??
+                                            playlist['title']?.toString() ??
+                                            'Unknown Playlist';
+                                    playlistImage =
+                                        playlist['coverImage']?.toString() ??
+                                            playlist['image']?.toString();
+                                    playlistId = playlist['id']?.toString() ??
+                                        playlist['_id']?.toString();
+                                  } else if (playlist is String) {
+                                    playlistName = playlist;
+                                    playlistId = playlist;
+                                  } else {
+                                    playlistName = playlist.toString();
+                                    playlistId = playlist.toString();
+                                  }
+                                } catch (e) {
+                                  print(
+                                      'Error processing playlist: $playlist, Error: $e');
+                                  playlistName = 'Invalid Playlist';
+                                }
+
+                                return GestureDetector(
+                                  onTap: () {
+                                    // Navigate to playlist view page
+                                    if (playlistId != null) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              PlaylistViewPage(
+                                            playlistId: playlistId!,
+                                            playlistName: playlistName,
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content:
+                                              Text('Unable to open playlist'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: Container(
+                                    width: 150,
+                                    height: 200,
+                                    margin: const EdgeInsets.only(right: 16),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          child: SizedBox(
+                                            height: 200, // reduced image height
+                                            width: double.infinity,
+                                            child: Image.network(
+                                              playlistImage ??
+                                                  'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?q=80&w=1619&auto=format&fit=crop',
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (context, error,
+                                                      stackTrace) =>
+                                                  Container(
+                                                color: Colors.grey,
+                                                child: const Icon(
+                                                    Icons.broken_image,
+                                                    size: 50),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Align(
+                                          alignment: Alignment.topLeft,
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                width:
+                                                    2, // thickness of the vertical line
+                                                height:
+                                                    20, // height of the vertical line
+                                                color: Colors.green,
+                                                margin: const EdgeInsets.only(
+                                                    right:
+                                                        4), // spacing between line and text
+                                              ),
+                                              Expanded(
+                                                child: Text(
+                                                  playlistName,
+                                                  style: kTextStyle.titleText
+                                                      .copyWith(
+                                                    fontSize: 15,
+                                                  ),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(height: 5),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
               ],
             ),
           ),
