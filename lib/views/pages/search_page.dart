@@ -82,62 +82,121 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     });
   }
 
+
   Future<void> _performSearch(String query) async {
-    if (query.isEmpty) {
+  if (query.isEmpty) {
+    setState(() {
+      searchResults = [];
+      currentQuery = '';
+      isSearching = false;
+    });
+    return;
+  }
+
+  setState(() {
+    isSearching = true;
+    currentQuery = query;
+  });
+
+  print('Searching for: $query');
+
+  try {
+    final response =
+        await ApiService.get('/search?q=${Uri.encodeComponent(query)}');
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      print('Search response: $data');
+
+      List<dynamic> results = [];
+
+      if (data is Map<String, dynamic>) {
+        // Handle the specific API structure: {playlists: [], songs: [], artists: []}
+        
+        // Add playlists with type identifier
+        if (data['playlists'] != null && data['playlists'] is List) {
+          for (var playlist in data['playlists']) {
+            if (playlist is Map<String, dynamic>) {
+              playlist['type'] = 'playlist';
+              // Map the API fields to expected field names
+              playlist['title'] = playlist['name'];
+              playlist['coverImage'] = playlist['image_url'];
+              results.add(playlist);
+            }
+          }
+        }
+
+        // Add songs with type identifier
+        if (data['songs'] != null && data['songs'] is List) {
+          for (var song in data['songs']) {
+            if (song is Map<String, dynamic>) {
+              song['type'] = 'song';
+              // Ensure coverImage field exists
+              song['coverImage'] = song['cover_image_url'] ?? song['image_url'];
+              results.add(song);
+            }
+          }
+        }
+
+        // Add artists with type identifier
+        if (data['artists'] != null && data['artists'] is List) {
+          for (var artist in data['artists']) {
+            if (artist is Map<String, dynamic>) {
+              artist['type'] = 'artist';
+              artist['title'] = artist['name'];
+              artist['coverImage'] = artist['image_url'] ?? artist['avatar_url'];
+              results.add(artist);
+            }
+          }
+        }
+      } else if (data is List) {
+        // Fallback: if response is directly a list
+        results = data;
+      }
+
       setState(() {
-        searchResults = [];
-        currentQuery = '';
+        searchResults = results;
         isSearching = false;
       });
-      return;
-    }
 
-    setState(() {
-      isSearching = true;
-      currentQuery = query;
-    });
+      print('Processed ${results.length} search results');
+      print('Results breakdown:');
+      print('- Playlists: ${results.where((r) => r['type'] == 'playlist').length}');
+      print('- Songs: ${results.where((r) => r['type'] == 'song').length}');
+      print('- Artists: ${results.where((r) => r['type'] == 'artist').length}');
 
-    try {
-      final response =
-          await ApiService.get('/search?q=${Uri.encodeComponent(query)}');
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      // Add to recent searches
+      if (!recentSearches.contains(query)) {
         setState(() {
-          searchResults = data['results'] ?? data['data'] ?? [];
-          isSearching = false;
-        });
-
-        // Add to recent searches
-        if (!recentSearches.contains(query)) {
-          setState(() {
-            recentSearches.insert(0, query);
-            if (recentSearches.length > 10) {
-              recentSearches = recentSearches.take(10).toList();
-            }
-          });
-        }
-      } else if (response.statusCode == 401) {
-        await SessionService.clearSession();
-        if (mounted) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginPage()),
-            (route) => false,
-          );
-        }
-      } else {
-        setState(() {
-          isSearching = false;
+          recentSearches.insert(0, query);
+          if (recentSearches.length > 10) {
+            recentSearches = recentSearches.take(10).toList();
+          }
         });
       }
-    } catch (error) {
+    } else if (response.statusCode == 401) {
+      await SessionService.clearSession();
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+          (route) => false,
+        );
+      }
+    } else {
       setState(() {
         isSearching = false;
       });
-      print('Error performing search: $error');
+      print('Search failed with status: ${response.statusCode}');
+      print('Response body: ${response.body}');
     }
+  } catch (error) {
+    setState(() {
+      isSearching = false;
+    });
+    print('Error performing search: $error');
   }
+}
 
   void _onSearchChanged(String value) {
     // Debounce search to avoid too many API calls
@@ -357,12 +416,16 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
         padding: const EdgeInsets.all(32),
         child: Column(
           children: [
-            Icon(Icons.trending_up, size: 48, color: Colors.grey[600]),
-            const SizedBox(height: 16),
-            Text(
-              'No trending searches available',
-              style: TextStyle(color: Colors.grey[600]),
+            Center(
+              child: Icon(Icons.trending_up, size: 48, color: Colors.grey[600]),
             ),
+            const SizedBox(height: 16),
+            Center(
+              child: Text(
+                'No trending searches available',
+                style: TextStyle(color: Colors.grey[600]),
+            ),
+            )
           ],
         ),
       );
@@ -467,6 +530,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
       padding: const EdgeInsets.all(16),
       itemCount: searchResults.length,
       itemBuilder: (context, index) {
+        print("this is the result: ${searchResults[index]}");
         final result = searchResults[index];
         return _buildResultItem(result);
       },
