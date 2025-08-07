@@ -285,6 +285,7 @@ class _PlaylistViewPageState extends State<PlaylistViewPage> {
   }
 
   Widget _buildSongsList() {
+    print(songs);
     if (songs.isEmpty) {
       return Center(
         child: Padding(
@@ -343,7 +344,7 @@ class _PlaylistViewPageState extends State<PlaylistViewPage> {
                   songTitle = song['title']?.toString() ??
                       song['name']?.toString() ??
                       'Unknown Song';
-                  artistName = song['artist']?.toString() ??
+                  artistName = song['artist']['name']?.toString() ??
                       song['artistName']?.toString() ??
                       'Unknown Artist';
                   songImage = song['coverImage']?.toString() ??
