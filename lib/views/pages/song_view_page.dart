@@ -7,6 +7,8 @@ import 'package:flows/data/texts.dart';
 import 'package:flows/views/widgets/music_controls_widget.dart';
 import 'dart:convert';
 
+import 'package:just_audio/just_audio.dart';
+
 class SongViewPage extends StatefulWidget {
   final String songId;
 
@@ -18,6 +20,7 @@ class SongViewPage extends StatefulWidget {
 
 class _SongViewPageState extends State<SongViewPage> {
   final double kPageHorizontalPadding = 20.0;
+  late AudioPlayer _audioPlayer;
   bool _isLoading = false;
   Map<String, dynamic>? _songData;
 
@@ -35,6 +38,13 @@ class _SongViewPageState extends State<SongViewPage> {
   void initState() {
     super.initState();
     _viewSong();
+    _audioPlayer = AudioPlayer()..setAsset('assets/audio/sample.mp3');
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
   }
 
   Future<void> _viewSong() async {
@@ -260,7 +270,7 @@ class _SongViewPageState extends State<SongViewPage> {
             SizedBox(
               height: 20,
             ),
-            MusicControls(),
+            MusicControls(song: _songData),
             SizedBox(
               height: 40,
             ),
