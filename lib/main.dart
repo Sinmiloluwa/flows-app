@@ -1,8 +1,13 @@
+import 'package:flows/services/audio_player_service.dart';
 import 'package:flows/views/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize audio player service
+  await AudioPlayerService().initialize();
   runApp(const MyApp());
 }
 
