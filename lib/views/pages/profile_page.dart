@@ -270,17 +270,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
                   SizedBox(height: 20),
 
-                  // Session Info (for debugging)
-                  // if (userId != null)
-                  //   Center(
-                  //     child: Text(
-                  //       'User ID: $userId',
-                  //       style: TextStyle(
-                  //         color: Colors.grey[600],
-                  //         fontSize: 12,
-                  //       ),
-                  //     ),
-                  //   ),
                 ],
               ),
             ),
