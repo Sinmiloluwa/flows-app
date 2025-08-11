@@ -58,7 +58,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
           GestureDetector(
             onTap: () => widget.onItemTapped(3), // Use widget.onItemTapped
             child: _buildNavItem(
-              icon: Icons.menu_book,
+              icon: Icons.library_music,
               label: '',
               index: 3,
             ),
