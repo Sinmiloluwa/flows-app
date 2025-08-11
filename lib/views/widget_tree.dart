@@ -4,14 +4,12 @@ import 'package:flows/views/pages/home_page.dart'; // Your HomePage
 import 'package:flows/views/pages/profile_page.dart'; // Your ProfilePage
 import 'package:flows/views/widgets/custom_bottom_navbar.dart'; // Your CustomBottomNavBar
 
-// Define your list of pages
-// Each page should be a Widget (e.g., HomePage, SearchPage, etc.)
 final List<Widget> pages = [
-  const HomePage(), // Your existing HomePage
-  const SearchPage(), // Placeholder
+  const HomePage(),
+  const SearchPage(),
   const Center(child: Text("Add/Create Page", style: TextStyle(color: Colors.white))), // Placeholder
-  const Center(child: Text("Books Page", style: TextStyle(color: Colors.white))), // Placeholder
-  const ProfilePage(), // Your ProfilePage with logout functionality
+  const Center(child: Text("Library Page", style: TextStyle(color: Colors.white))), // Placeholder
+  const ProfilePage(),
 ];
 
 class WidgetTree extends StatefulWidget {
@@ -33,8 +31,8 @@ class _WidgetTreeState extends State<WidgetTree> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Background for the Scaffold
-      body: pages[_selectedIndex], // Display the selected page from the list
+      backgroundColor: Colors.black,
+      body: pages[_selectedIndex], 
 
       bottomNavigationBar: CustomBottomNavBar(
         selectedIndex: _selectedIndex,
