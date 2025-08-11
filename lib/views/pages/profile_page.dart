@@ -1,3 +1,4 @@
+import 'package:flows/views/pages/artists_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flows/services/session_service.dart';
 import 'package:flows/services/api_service.dart';
@@ -238,6 +239,20 @@ class _ProfilePageState extends State<ProfilePage> {
                         SnackBar(
                           content: Text('Help & Support - Coming Soon'),
                           backgroundColor: Colors.grey[700],
+                        ),
+                      );
+                    },
+                  ),
+
+                  _buildMenuItem(
+                    icon: Icons.music_off_sharp,
+                    title: 'Artist and more',
+                    onTap: () {
+                      // TODO: Navigate to artist and more
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ArtistsPage(),
                         ),
                       );
                     },
