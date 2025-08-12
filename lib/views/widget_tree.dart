@@ -1,3 +1,4 @@
+import 'package:flows/views/pages/library_page.dart';
 import 'package:flows/views/pages/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flows/views/pages/home_page.dart'; // Your HomePage
@@ -8,7 +9,7 @@ final List<Widget> pages = [
   const HomePage(),
   const SearchPage(),
   const Center(child: Text("Add/Create Page", style: TextStyle(color: Colors.white))), // Placeholder
-  const Center(child: Text("Library Page", style: TextStyle(color: Colors.white))), // Placeholder
+  const LibraryPage(), // Placeholder
   const ProfilePage(),
 ];
 
