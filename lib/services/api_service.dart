@@ -182,7 +182,7 @@ class ApiService {
 
   static Future<http.Response> addRecentlyPlayed(String songId) async {
     final url = Uri.parse('$baseUrl/songs/recently-played');
-    
+
     final headers = await _getHeaders();
     final body = json.encode({
       'songId': songId,
@@ -194,15 +194,16 @@ class ApiService {
 
   // Get recently played songs
   static Future<http.Response> getRecentlyPlayed({int limit = 20}) async {
-    final url = Uri.parse('$baseUrl/songs/recently-played?limit=$limit');
+    final url = Uri.parse('$baseUrl/songs/recently-played-songs?limit=$limit');
     final headers = await _getHeaders();
-    
+
     return await http.get(url, headers: headers);
   }
 
-  static Future<http.Response> syncRecentlyPlayed(List<Map<String, dynamic>> recentSongs) async {
+  static Future<http.Response> syncRecentlyPlayed(
+      List<Map<String, dynamic>> recentSongs) async {
     final url = Uri.parse('$baseUrl/songs/recently-played/sync');
-    
+
     final headers = await _getHeaders();
     final body = json.encode({
       'songs': recentSongs,
