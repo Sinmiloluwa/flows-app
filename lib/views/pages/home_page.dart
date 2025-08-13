@@ -33,6 +33,12 @@ class _HomePageState extends State<HomePage> {
     loadPlaylists();
   }
 
+  @override
+  void dispose() {
+    // Cancel any ongoing operations here if needed
+    super.dispose();
+  }
+
   Future<void> _loadUserData() async {
     final sessionData = await SessionService.getSessionData();
     setState(() {
