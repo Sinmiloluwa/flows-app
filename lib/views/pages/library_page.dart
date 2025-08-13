@@ -1,3 +1,5 @@
+import 'package:flows/services/recently_played_service.dart';
+import 'package:flows/views/widgets/shimmer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flows/data/texts.dart';
 
@@ -9,6 +11,49 @@ class LibraryPage extends StatefulWidget {
 }
 
 class _LibraryPageState extends State<LibraryPage> {
+  List<dynamic> recentlyPlayed = [];
+  bool isLoadingRecentlyPlayed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Load recently played songs
+    loadRecentlyPlayed();
+  }
+
+  Future<void> loadRecentlyPlayed() async {
+    setState(() {
+      isLoadingRecentlyPlayed = true;
+    });
+
+    try {
+      // Try to get from backend first
+      final backendSongs =
+          await RecentlyPlayedService.getFromBackend(limit: 10);
+
+      if (backendSongs.isNotEmpty) {
+        setState(() {
+          recentlyPlayed = backendSongs;
+          isLoadingRecentlyPlayed = false;
+        });
+      } else {
+        // Fallback to local storage
+        final localSongs = await RecentlyPlayedService.getLocalRecentlyPlayed();
+        setState(() {
+          recentlyPlayed = localSongs.take(10).toList();
+          isLoadingRecentlyPlayed = false;
+        });
+      }
+
+      RecentlyPlayedService.syncWithBackend();
+    } catch (error) {
+      setState(() {
+        isLoadingRecentlyPlayed = false;
+      });
+      print('Error loading recently played: $error');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,11 +107,34 @@ class _LibraryPageState extends State<LibraryPage> {
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
               SizedBox(height: 16),
+              isLoadingRecentlyPlayed
+                    ? SizedBox(
+                        height: 240,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: recentlyPlayed.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              width: 150,
+                              margin: const EdgeInsets.only(right: 10),
+                              child: const Column(
+                                children: [
+                                  ShimmerCard(width: 150, height: 150, borderRadius: 8),
+                                  SizedBox(height: 8),
+                                  ShimmerText(width: 100, height: 16),
+                                  SizedBox(height: 4),
+                                  ShimmerText(width: 80, height: 12),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ) :
               SizedBox(
                 height: 300,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: 10, // Example item count
+                  itemCount: recentlyPlayed.length, // Example item count
                   itemBuilder: (context, index) {
                     return Container(
                         height: 250,
