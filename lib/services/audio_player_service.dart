@@ -1,3 +1,4 @@
+import 'package:flows/services/recently_played_service.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:rxdart/rxdart.dart';
@@ -93,6 +94,9 @@ class AudioPlayerService {
       print('Playing song: ${song['title'] ?? 'Unknown'} from URL: $audioUrl');
       await _player.setAudioSource(AudioSource.uri(Uri.parse(audioUrl)));
       await _player.play();
+
+      // Add to recently played when song starts playing
+      await RecentlyPlayedService.addSong(song);
       
     } catch (error) {
       print('Error playing song: $error');
