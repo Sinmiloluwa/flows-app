@@ -21,6 +21,11 @@ class _LibraryPageState extends State<LibraryPage> {
     loadRecentlyPlayed();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   Future<void> loadRecentlyPlayed() async {
     setState(() {
       isLoadingRecentlyPlayed = true;
@@ -30,6 +35,7 @@ class _LibraryPageState extends State<LibraryPage> {
       // Try to get from backend first
       final backendSongs =
           await RecentlyPlayedService.getFromBackend(limit: 10);
+          print(backendSongs);
 
       if (backendSongs.isNotEmpty) {
         setState(() {
@@ -112,7 +118,7 @@ class _LibraryPageState extends State<LibraryPage> {
                         height: 240,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          itemCount: recentlyPlayed.length,
+                          itemCount: 10,
                           itemBuilder: (context, index) {
                             return Container(
                               width: 150,
@@ -152,7 +158,7 @@ class _LibraryPageState extends State<LibraryPage> {
                                 height: 200, // reduced image height
                                 width: double.infinity,
                                 child: Image.network(
-                                  'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?q=80&w=1619&auto=format&fit=crop',
+                                  recentlyPlayed[index]['song']['cover_image_url'] ?? 'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?q=80&w=1619&auto=format&fit=crop',
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) =>
                                       Container(
@@ -179,7 +185,7 @@ class _LibraryPageState extends State<LibraryPage> {
                                   ),
                                   Expanded(
                                     child: Text(
-                                      'playlistName',
+                                      recentlyPlayed[index]['song']['title'] ?? 'Unknown Song',
                                       style: kTextStyle.titleText.copyWith(
                                         fontSize: 15,
                                       ),
@@ -192,7 +198,7 @@ class _LibraryPageState extends State<LibraryPage> {
                             ),
                             SizedBox(height: 5),
                             Text(
-                              'Unknown Artist',
+                              recentlyPlayed[index]['song']['artists'][0]['name'] ?? 'Unknown Artist',
                               style: kTextStyle.descriptionText.copyWith(
                                 fontSize: 12,
                                 color: Colors.grey,
