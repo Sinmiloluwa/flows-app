@@ -180,6 +180,37 @@ class ApiService {
     return await get('/songs/search?q=${Uri.encodeComponent(query)}');
   }
 
+  static Future<http.Response> addRecentlyPlayed(String songId) async {
+    final url = Uri.parse('$baseUrl/songs/recently-played');
+    
+    final headers = await _getHeaders();
+    final body = json.encode({
+      'songId': songId,
+      'playedAt': DateTime.now().toIso8601String(),
+    });
+
+    return await http.post(url, headers: headers, body: body);
+  }
+
+  // Get recently played songs
+  static Future<http.Response> getRecentlyPlayed({int limit = 20}) async {
+    final url = Uri.parse('$baseUrl/songs/recently-played?limit=$limit');
+    final headers = await _getHeaders();
+    
+    return await http.get(url, headers: headers);
+  }
+
+  static Future<http.Response> syncRecentlyPlayed(List<Map<String, dynamic>> recentSongs) async {
+    final url = Uri.parse('$baseUrl/songs/recently-played/sync');
+    
+    final headers = await _getHeaders();
+    final body = json.encode({
+      'songs': recentSongs,
+    });
+
+    return await http.post(url, headers: headers, body: body);
+  }
+
   // Get user profile (authenticated request)
   static Future<http.Response> getUserProfile() async {
     return await get('/user/profile');
