@@ -77,6 +77,47 @@ class _HomePageState extends State<HomePage> {
           categories = categoriesList;
           isLoadingCategories = false;
         });
+      } else if (response.statusCode == 503) {
+        setState(() {
+          isLoadingCategories = false;
+        });
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => Scaffold(
+              backgroundColor: Colors.black,
+              body: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.construction, color: Colors.orange, size: 64),
+                      SizedBox(height: 24),
+                      Text(
+                        'We are working on a solution',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'Kindly bear with us while we resolve this issue.',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
       } else {
         setState(() {
           isLoadingCategories = false;
@@ -736,7 +777,6 @@ class _HomePageState extends State<HomePage> {
                                       const SizedBox(height: 4),
 
                                       // Artist/Subtitle
-    
                                     ],
                                   ),
                                 ),
