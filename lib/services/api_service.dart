@@ -180,6 +180,10 @@ class ApiService {
     return await get('/songs/search?q=${Uri.encodeComponent(query)}');
   }
 
+  static Future<http.Response> recommendedSongs() async {
+    return await get('/songs/recommendations');
+  }
+
   static Future<http.Response> addRecentlyPlayed(String songId) async {
     final url = Uri.parse('$baseUrl/songs/recently-played');
 
