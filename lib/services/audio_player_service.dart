@@ -1,5 +1,6 @@
 import 'package:flows/services/recently_played_service.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -81,6 +82,55 @@ class AudioPlayerService {
     }
   }
 
+  MediaItem _createMediaItem(Map<String, dynamic> song) {
+    return MediaItem(
+      id: song['id']?.toString() ?? song['_id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      album: song['album'] ?? 'Unknown Album',
+      title: song['title'] ?? song['name'] ?? 'Unknown Title',
+      artist: song['artist'] ?? song['artistName'] ?? 'Unknown Artist',
+      duration: _parseDuration(song['duration']),
+      artUri: _parseArtUri(song['coverImage'] ?? song['image_url'] ?? song['artwork']),
+      genre: song['genre'],
+      extras: {
+        'url': song['audio_url'] ?? song['stream_url'] ?? song['url'],
+        'originalData': song,
+      },
+    );
+  }
+
+  Duration? _parseDuration(dynamic durationValue) {
+    if (durationValue == null) return null;
+    
+    if (durationValue is int) {
+      return Duration(seconds: durationValue);
+    } else if (durationValue is String) {
+      if (durationValue.contains(':')) {
+        final parts = durationValue.split(':');
+        if (parts.length == 2) {
+          final minutes = int.tryParse(parts[0]) ?? 0;
+          final seconds = int.tryParse(parts[1]) ?? 0;
+          return Duration(minutes: minutes, seconds: seconds);
+        }
+      } else {
+        final seconds = int.tryParse(durationValue) ?? 0;
+        return Duration(seconds: seconds);
+      }
+    }
+    
+    return null;
+  }
+
+  // Parse artwork URI
+  Uri? _parseArtUri(String? artworkUrl) {
+    if (artworkUrl == null || artworkUrl.isEmpty) return null;
+    try {
+      return Uri.parse(artworkUrl);
+    } catch (e) {
+      print('Error parsing artwork URI: $e');
+      return null;
+    }
+  }
+
   // Play a single song
   Future<void> playSong(Map<String, dynamic> song) async {
     try {
@@ -92,7 +142,17 @@ class AudioPlayerService {
       }
 
       print('Playing song: ${song['title'] ?? 'Unknown'} from URL: $audioUrl');
-      await _player.setAudioSource(AudioSource.uri(Uri.parse(audioUrl)));
+      
+      // Create MediaItem for the song
+      final mediaItem = _createMediaItem(song);
+      
+      // Create AudioSource with MediaItem tag - THIS IS THE FIX
+      final audioSource = AudioSource.uri(
+        Uri.parse(audioUrl),
+        tag: mediaItem, // Add the MediaItem tag
+      );
+      
+      await _player.setAudioSource(audioSource);
       await _player.play();
 
       // Add to recently played when song starts playing
@@ -119,7 +179,14 @@ class AudioPlayerService {
     for (var song in songs) {
       String? audioUrl = song['audio_url'] ?? song['stream_url'] ?? song['url'];
       if (audioUrl != null && audioUrl.isNotEmpty) {
-        audioSources.add(AudioSource.uri(Uri.parse(audioUrl)));
+        // Create MediaItem for each song
+        final mediaItem = _createMediaItem(song);
+        
+        // Add AudioSource with MediaItem tag - THIS IS THE FIX
+        audioSources.add(AudioSource.uri(
+          Uri.parse(audioUrl),
+          tag: mediaItem, // Add the MediaItem tag for each song
+        ));
       }
     }
 
