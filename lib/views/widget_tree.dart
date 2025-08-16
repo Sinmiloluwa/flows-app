@@ -1,3 +1,4 @@
+import 'package:flows/views/pages/ai_chat_page.dart';
 import 'package:flows/views/pages/library_page.dart';
 import 'package:flows/views/pages/search_page.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,7 @@ import 'package:flows/views/widgets/custom_bottom_navbar.dart'; // Your CustomBo
 final List<Widget> pages = [
   const HomePage(),
   const SearchPage(),
-  const Center(child: Text("Add/Create Page", style: TextStyle(color: Colors.white))), // Placeholder
+  const AIChatPage(), // Placeholder
   const LibraryPage(), // Placeholder
   const ProfilePage(),
 ];
