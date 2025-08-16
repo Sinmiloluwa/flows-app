@@ -46,6 +46,7 @@ dependencies:
   audio_video_progress_bar: ^2.0.3
   just_audio: ^0.9.46
   just_audio_background: ^0.0.1-beta.15
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:
