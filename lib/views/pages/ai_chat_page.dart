@@ -58,9 +58,9 @@ class _AIChatPageState extends State<AIChatPage> {
 
     setState(() {
       messages.add({'role': 'assistant', 'content': aiReply});
-      isAssistantLoading = false; 
+      isAssistantLoading = false;
     });
-    _scrollToBottom(); 
+    _scrollToBottom();
   }
 
   void _scrollToBottom() {
@@ -118,19 +118,19 @@ class _AIChatPageState extends State<AIChatPage> {
               }).toList(),
             ),
           ),
-          if(isAssistantLoading) 
-          Align(
-                    alignment: Alignment.centerRight,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.green[700],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const LoadingDots(),
-                    ),
-                  ),
+          if (isAssistantLoading)
+            Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green[700],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const LoadingDots(),
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -142,6 +142,16 @@ class _AIChatPageState extends State<AIChatPage> {
                     decoration: const InputDecoration(
                       hintText: 'How can I help you today...',
                       hintStyle: TextStyle(color: Colors.white54),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Colors.green,
+                            width: 2), // Green border on focus
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Colors.grey, width: 1), // Default border
+                      ),
+                      border: OutlineInputBorder(),
                     ),
                   ),
                 ),
