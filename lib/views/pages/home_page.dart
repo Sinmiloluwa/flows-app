@@ -227,41 +227,58 @@ class _HomePageState extends State<HomePage> {
       selectedCategoryId = category['id'];
     });
 
-    // You can add logic here to:
-    // 1. Filter songs by category
-    // 2. Navigate to a category-specific page
-    // 3. Update UI to show selected state
-    // 4. Fetch songs for this category
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(
+    //     content: Text('Selected: ${category['name']}'),
+    //     backgroundColor: Colors.green,
+    //     duration: Duration(seconds: 1),
+    //   ),
+    // );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Selected: ${category['name']}'),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 1),
-      ),
-    );
-
-    // Example: Fetch songs for this category
     if (category['id'] != null && category['id'] != 'all') {
-      // _fetchSongsByCategory(category['id']);
+      _fetchSongsByCategory(category['id']);
     }
   }
 
-  // Optional: Method to fetch songs by category
-  // Future<void> _fetchSongsByCategory(String categoryId) async {
-  //   try {
-  //     final response = await ApiService.getSongsByCategory(categoryId);
-  //     if (response.statusCode == 200) {
-  //       final data = json.decode(response.body);
-  //       // Handle the songs data
-  //       print('Songs for category: $data');
-  //     }
-  //   } catch (error) {
-  //     print('Error fetching songs by category: $error');
-  //   }
-  // }
+  Future<void> _fetchSongsByCategory(String categoryId) async {
+    setState(() {
+      isLoadingPopularSongs = true;
+    });
+    try {
+      final response = await ApiService.getSongsByCategory(categoryId);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('Data: $data');
 
-  Future<List<Map<String, dynamic>>> loadMadeForYouPlaylists() async {
+        List<dynamic> popularSongsList = [];
+        if (data is List) {
+          // Filter out songs with empty artists list
+          popularSongsList = data.where((song) {
+            return song['artists'] != null &&
+                song['artists'] is List &&
+                song['artists'].isNotEmpty;
+          }).toList();
+        } else if (data is Map<String, dynamic>) {
+          popularSongsList = (data as List).where((song) {
+            return song['artists'] != null &&
+                song['artists'] is List &&
+                song['artists'].isNotEmpty;
+          }).toList();
+        }
+
+        setState(() {
+          popularSongs = popularSongsList;
+          isLoadingPopularSongs = false;
+        });
+        print('Testing songs: $popularSongs');
+      }
+    } catch (error) {
+      isLoadingPopularSongs = true;
+      print('Error fetching songs by category: $error');
+    }
+  }
+
+  Future<void> loadMadeForYouPlaylists() async {
     setState(() {
       isLoadingMadeForYou = true;
     });
@@ -277,13 +294,11 @@ class _HomePageState extends State<HomePage> {
         isLoadingMadeForYou = false;
         madeForYouList = madeForYou;
       });
-      return madeForYou;
     } catch (error) {
       setState(() {
         isLoadingMadeForYou = false;
       });
       print('Error loading "Made For You" playlists: $error');
-      return [];
     }
   }
 
@@ -610,8 +625,9 @@ class _HomePageState extends State<HomePage> {
                                               ?.toString() ??
                                           popularSongs[index]['_id']
                                               ?.toString() ??
+                                            popularSongs[index]['id'] ?? 
                                           index
-                                              .toString(); // fallback to index if no ID
+                                              .toString();
 
                                       Navigator.push(
                                         context,
@@ -626,7 +642,7 @@ class _HomePageState extends State<HomePage> {
                                         height: 200,
                                         width: double.infinity,
                                         child: Image.network(
-                                          popularSongs[index]['coverImage'] ??
+                                          popularSongs[index]['coverImage'] ?? popularSongs[index]['cover_image_url'] ??
                                               'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?q=80&w=1619&auto=format&fit=crop',
                                           fit: BoxFit.cover,
                                           errorBuilder:
@@ -659,8 +675,9 @@ class _HomePageState extends State<HomePage> {
                                                   ?.toString() ??
                                               popularSongs[index]['_id']
                                                   ?.toString() ??
+                                                  popularSongs[index]['id'] ??
                                               index
-                                                  .toString(); // fallback to index if no ID
+                                                  .toString(); 
 
                                           Navigator.push(
                                             context,
@@ -683,7 +700,7 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   const SizedBox(height: 5),
                                   Text(
-                                    popularSongs[index]['artist'] ??
+                                    popularSongs[index]['artist'] ?? popularSongs[index]['artists'][0]['name'] ??
                                         'Unknown Artist',
                                     style: kTextStyle.descriptionText.copyWith(
                                       fontSize: 12,
