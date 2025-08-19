@@ -141,7 +141,8 @@ class ApiService {
 
   // Fetch songs by category (authenticated request)
   static Future<http.Response> getSongsByCategory(String categoryId) async {
-    return await get('/categories/$categoryId/songs');
+    final headers = await _getHeaders();
+    return await get('/songs/songs-by-category/$categoryId', headers: headers);
   }
 
   static Future<http.Response> madeForYou() async {
