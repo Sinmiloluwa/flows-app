@@ -144,6 +144,11 @@ class ApiService {
     return await get('/categories/$categoryId/songs');
   }
 
+  static Future<http.Response> madeForYou() async {
+    final headers = await _getHeaders();
+    return await get('/playlists/made-for-you', headers: headers);
+  }
+
   // Fetch user's playlists (authenticated request)
   static Future<http.Response> getPlaylists() async {
     final headers = await _getHeaders();
