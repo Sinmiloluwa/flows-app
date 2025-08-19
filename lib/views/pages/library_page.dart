@@ -294,9 +294,17 @@ class _LibraryPageState extends State<LibraryPage> {
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: recommendedSongList.length,
                         itemBuilder: (context, index) {
-                          String songTitle = 'Unknown Song';
-                          String artistName = 'Unknown Artist';
-                          String? songImage;
+                          String songTitle = recommendedSongList[index]
+                                  ['title'] ??
+                              'Unknown Song';
+                          final artists = recommendedSongList[index]['artists']
+                                  as List<dynamic>? ??
+                              [];
+                          final artistName = artists.isNotEmpty
+                              ? (artists[0]['name'] ?? 'Unknown Artist')
+                              : 'Unknown Artist';
+                          String? songImage =
+                              recommendedSongList[index]['cover_image_url'];
 
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12),
