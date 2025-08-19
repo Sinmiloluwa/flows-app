@@ -600,6 +600,13 @@ class _HomePageState extends State<HomePage> {
                           },
                         ),
                       )
+                    : popularSongs.isEmpty ?
+                    Center(
+                      child: Text(
+                        'No popular songs available',
+                        style: TextStyle(color: Colors.grey),
+                        ),
+                    )
                     : SizedBox(
                         height: 300,
                         width: double.infinity,
