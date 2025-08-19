@@ -49,9 +49,9 @@ class _ShimmerWidgetState extends State<ShimmerWidget>
             borderRadius: BorderRadius.circular(widget.borderRadius),
             gradient: LinearGradient(
               colors: [
-                Colors.grey,
-                Colors.grey,
-                Colors.grey,
+                Colors.grey[800]!,
+                Colors.grey[400]!.withOpacity(0.6), // Highlight color
+                Colors.grey[800]!,
               ],
               stops: const [0.0, 0.5, 1.0],
               begin: Alignment(-1.0 + _shimmerController.value * 2, 0.0),
