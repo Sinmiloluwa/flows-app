@@ -15,7 +15,7 @@ class RecentlyPlayedService {
     try {
       print('Session expired. Please log in again.');
       await SessionService.clearSession();
-      
+
       // Use global navigator key to navigate
       if (navigatorKey.currentState != null) {
         navigatorKey.currentState!.pushAndRemoveUntil(
@@ -126,9 +126,11 @@ class RecentlyPlayedService {
           }
 
           if (response.statusCode == 200) {
-            print('Successfully synced ${songsToSync.length} recently played songs');
+            print(
+                'Successfully synced ${songsToSync.length} recently played songs');
           } else {
-            print('Failed to sync recently played songs: ${response.statusCode}');
+            print(
+                'Failed to sync recently played songs: ${response.statusCode}');
           }
         }
       }
@@ -138,16 +140,17 @@ class RecentlyPlayedService {
   }
 
   // Get recently played from backend
-  static Future<List<Map<String, dynamic>>> getFromBackend({int limit = 20}) async {
+  static Future<List<Map<String, dynamic>>> getFromBackend(
+      {int limit = 20}) async {
     try {
       final response = await ApiService.getRecentlyPlayed(limit: limit);
       print('Recently played response status: ${response.statusCode}');
-      
+
       if (response.statusCode == 401) {
         await _handleAuthError();
         return [];
       }
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         print('Fetched recently played from backend: $data');
@@ -180,4 +183,32 @@ class RecentlyPlayedService {
       print('Error clearing recently played: $error');
     }
   }
+
+  static Future likeSong(String songId) async {
+    try {
+      final response = await ApiService.likeSong(songId);
+      print('This response: ${response.statusCode}');
+      if (response.statusCode == 401) {
+        await _handleAuthError();
+        return;
+      }
+
+      return response;
+    } catch (error) {
+      print('Errors liking song: $error');
+    }
+  }
+
+  // static Future<void> _loadLikedStatus(String songId) async {
+  //   try {
+  //     final response = await ApiService.getLikedStatus(songId);
+  //     if (response.statusCode == 200) {
+  //       setState(() {
+  //         likedSong = json.decode(response.body)['liked'] ?? false;
+  //       });
+  //     }
+  //   } catch (error) {
+  //     print('Error loading liked status: $error');
+  //   }
+  // }
 }
