@@ -1,5 +1,6 @@
 import 'package:flows/services/api_service.dart';
 import 'package:flows/services/recently_played_service.dart';
+import 'package:flows/views/pages/song_view_page.dart';
 import 'package:flows/views/widgets/shimmer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flows/data/texts.dart';
@@ -17,6 +18,7 @@ class _LibraryPageState extends State<LibraryPage> {
   List<dynamic> recommendedSongList = [];
   bool isLoadingRecentlyPlayed = false;
   bool isLoadingRecommendedSongs = false;
+  bool likedSong = false;
 
   @override
   void initState() {
@@ -90,6 +92,38 @@ class _LibraryPageState extends State<LibraryPage> {
       print('Error loading recommended songs: $error');
     }
   }
+
+  Future<void> likeSong(String songId) async {
+    setState(() {
+          likedSong = false;
+        });
+    try {
+      final response = await RecentlyPlayedService.likeSong(songId);
+      if (response.statusCode == 201) {
+        setState(() {
+          likedSong = true;
+        });
+      }
+    } catch (error) {
+      setState(() {
+          likedSong = false;
+        });
+      print('Failed to like song: $error');
+    }
+  }
+
+  // Future<void> _loadLikedStatus(String songId) async {
+  //   try {
+  //     final response = await ApiService.getLikedStatus(songId);
+  //     if (response.statusCode == 200) {
+  //       setState(() {
+  //         likedSong = json.decode(response.body)['liked'] ?? false;
+  //       });
+  //     }
+  //   } catch (error) {
+  //     print('Error loading liked status: $error');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -305,6 +339,9 @@ class _LibraryPageState extends State<LibraryPage> {
                               : 'Unknown Artist';
                           String? songImage =
                               recommendedSongList[index]['cover_image_url'];
+                          String songId =
+                              recommendedSongList[index]['id']?.toString() ??
+                                  '';
 
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12),
@@ -349,27 +386,26 @@ class _LibraryPageState extends State<LibraryPage> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               trailing: IconButton(
-                                icon: const Icon(
-                                  Icons.favorite_border,
-                                  color: Colors.white54,
-                                ),
+                                icon: likedSong
+                                    ? Icon(
+                                        Icons.favorite,
+                                        color: Colors.green,
+                                      )
+                                    : Icon(
+                                        Icons.favorite_border,
+                                        color: Colors.white54,
+                                      ),
                                 onPressed: () {
-                                  // TODO: Show song options menu
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content:
-                                          Text('Song options coming soon!'),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
+                                  likeSong(songId);
                                 },
                               ),
                               onTap: () {
-                                // TODO: Play this specific song
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Playing: $songTitle'),
-                                    backgroundColor: Colors.green,
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SongViewPage(
+                                      songId: songId,
+                                    ),
                                   ),
                                 );
                               },
