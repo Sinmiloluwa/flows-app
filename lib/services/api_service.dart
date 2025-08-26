@@ -232,4 +232,9 @@ class ApiService {
       Map<String, dynamic> profileData) async {
     return await put('/user/profile', body: profileData);
   }
+
+  static Future<http.Response> likeSong(String songId) async {
+    return await post('/songs/$songId/like');
+  }
+
 }
