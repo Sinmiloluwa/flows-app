@@ -47,6 +47,7 @@ dependencies:
   just_audio: ^0.9.46
   just_audio_background: ^0.0.1-beta.15
   flutter_dotenv: ^5.1.0
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:
