@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flows/services/api_service.dart';
 import 'package:flows/services/session_service.dart';
 import 'package:flows/views/pages/login_page.dart';
@@ -221,12 +222,12 @@ class _SongViewPageState extends State<SongViewPage> {
                     )
                   : ClipRRect(
                       borderRadius: BorderRadius.circular(16),
-                      child: Image.network(
-                        coverImage,
+                      child: CachedNetworkImage(
+                        imageUrl: coverImage,
                         width: double.infinity,
                         height: 300,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
+                        errorWidget: (context, error, stackTrace) => Container(
                           width: double.infinity,
                           height: 300,
                           color: Colors.grey,
