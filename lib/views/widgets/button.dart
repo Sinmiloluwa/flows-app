@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flows/views/widgets/loading_dots.dart';
 
 class Button extends StatelessWidget {
   final String text;
