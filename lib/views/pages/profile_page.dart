@@ -1,3 +1,4 @@
+import 'package:flows/views/pages/account_settings.dart';
 import 'package:flows/views/pages/artists_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flows/services/session_service.dart';
@@ -192,11 +193,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     icon: Icons.person_outline,
                     title: 'Account Settings',
                     onTap: () {
-                      // TODO: Navigate to account settings
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Account Settings - Coming Soon'),
-                          backgroundColor: Colors.grey[700],
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AccountSettings(),
                         ),
                       );
                     },
