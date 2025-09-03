@@ -56,7 +56,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
           // ),
           // Books Item
           GestureDetector(
-            onTap: () => widget.onItemTapped(3), // Use widget.onItemTapped
+            onTap: () => widget.onItemTapped(2), // Use widget.onItemTapped
             child: _buildNavItem(
               icon: Icons.library_music,
               label: '',
@@ -65,7 +65,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
           ),
           // Profile Item
           GestureDetector(
-            onTap: () => widget.onItemTapped(4), // Use widget.onItemTapped
+            onTap: () => widget.onItemTapped(3), // Use widget.onItemTapped
             child: _buildNavItem(
               icon: Icons.person_outline,
               label: '',
