@@ -3,6 +3,7 @@ import 'package:flows/data/texts.dart';
 import 'package:flows/services/playlist_service.dart';
 import 'package:flows/services/session_service.dart';
 import 'package:flows/services/api_service.dart';
+import 'package:flows/views/widgets/home_page/custom_drawer.dart';
 import 'package:flows/views/widgets/home_page/made_for_you.dart';
 import 'package:flows/views/widgets/home_page/popular_songs.dart';
 import 'package:flows/views/widgets/shimmer_widget.dart';
@@ -324,25 +325,32 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        drawer: CustomDrawer(),
         appBar: AppBar(
+          leading: Builder(
+          builder: (context) {
+            return GestureDetector(
+              onTap: () {
+                Scaffold.of(context).openDrawer();
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CircleAvatar(
+                  backgroundColor: Colors.lightGreenAccent[400],
+                  child: Text(
+                    userEmail!.isNotEmpty ? userEmail![0].toUpperCase() : '?',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
           backgroundColor: Colors.black,
           centerTitle: false,
-          title: Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: 'Hello, ',
-                  style: kTextStyle.nameText.copyWith(
-                    // or different color, size, etc.
-                    color: Colors.grey, // example override
-                  ), // style for "Hello,"
-                ),
-                TextSpan(
-                    text: userEmail?.split('@')[0] ?? 'User',
-                    style: kTextStyle.nameText),
-              ],
-            ),
-          ),
           actions: [
             IntrinsicHeight(
               child: Container(
