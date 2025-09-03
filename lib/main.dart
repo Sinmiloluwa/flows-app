@@ -3,15 +3,15 @@ import 'package:flows/views/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:just_audio_background/just_audio_background.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {  
-  const env = String.fromEnvironment('ENV', defaultValue: 'dev');
-  if (env == 'dev') {
-    await dotenv.load(fileName: '/Users/user/AndroidStudioProjects/Flows/.env');
-  }
+  // const env = String.fromEnvironment('ENV', defaultValue: 'dev');
+  // if (env == 'dev') {
+  //   await dotenv.load(fileName: '/Users/user/AndroidStudioProjects/Flows/.env');
+  // }
   WidgetsFlutterBinding.ensureInitialized();
 
   await JustAudioBackground.init(

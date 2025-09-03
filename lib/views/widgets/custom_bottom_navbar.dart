@@ -46,21 +46,21 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
             ),
           ),
           // Add Item
-          GestureDetector(
-            onTap: () => widget.onItemTapped(2), // Use widget.onItemTapped
-            child: _buildNavItem(
-              icon: Icons.add_circle_outline,
-              label: '',
-              index: 2,
-            ),
-          ),
+          // GestureDetector(
+          //   onTap: () => widget.onItemTapped(2), // Use widget.onItemTapped
+          //   child: _buildNavItem(
+          //     icon: Icons.add_circle_outline,
+          //     label: '',
+          //     index: 2,
+          //   ),
+          // ),
           // Books Item
           GestureDetector(
             onTap: () => widget.onItemTapped(3), // Use widget.onItemTapped
             child: _buildNavItem(
               icon: Icons.library_music,
               label: '',
-              index: 3,
+              index: 2,
             ),
           ),
           // Profile Item
@@ -69,7 +69,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
             child: _buildNavItem(
               icon: Icons.person_outline,
               label: '',
-              index: 4,
+              index: 3,
             ),
           ),
         ],

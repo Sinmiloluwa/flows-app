@@ -9,7 +9,6 @@ import 'package:flows/views/widgets/custom_bottom_navbar.dart'; // Your CustomBo
 final List<Widget> pages = [
   const HomePage(),
   const SearchPage(),
-  const AIChatPage(), // Placeholder
   const LibraryPage(), // Placeholder
   const ProfilePage(),
 ];
