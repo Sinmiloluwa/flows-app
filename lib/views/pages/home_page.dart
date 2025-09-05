@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flows/data/texts.dart';
 import 'package:flows/services/playlist_service.dart';
 import 'package:flows/services/session_service.dart';
@@ -8,7 +7,6 @@ import 'package:flows/views/widgets/home_page/made_for_you.dart';
 import 'package:flows/views/widgets/home_page/popular_songs.dart';
 import 'package:flows/views/widgets/shimmer_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flows/views/pages/song_view_page.dart';
 import 'package:flows/views/pages/playlist_view_page.dart';
 import 'dart:convert';
 
